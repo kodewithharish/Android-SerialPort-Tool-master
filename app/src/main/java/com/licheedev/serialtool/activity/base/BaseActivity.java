@@ -1,6 +1,9 @@
 package com.licheedev.serialtool.activity.base;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+
 import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -107,4 +110,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         // 收到时间，刷新界面
         mLogFragment.add(message);
     }
+
+    public abstract void onItemClick(AdapterView<?> parent, View view, int position, long id);
 }

@@ -12,6 +12,8 @@ import com.licheedev.serialtool.comn.message.LogManager;
 import com.licheedev.serialtool.comn.message.RecvMessage;
 import com.licheedev.serialtool.util.ToastUtil;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,42 +27,37 @@ public class SerialReadThread extends Thread {
     private static final String TAG = "SerialReadThread";
 
     private BufferedInputStream mInputStream;
+    private byte[] mReadBuffer;
 
     public SerialReadThread(InputStream is) {
         mInputStream = new BufferedInputStream(is);
+        mReadBuffer = new byte[4096];
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void run() {
-       // byte[] received = new byte[1024];
-        byte[] received = new byte[2048];
         int size;
-
-        while (true) {
-
-            if (Thread.currentThread().isInterrupted()) {
-                break;
-            }
+        while (!isInterrupted()) {
             try {
 
-                int available = mInputStream.available();
-
-                if (available > 0) {
-                    size = mInputStream.read(received);
-                    if (size > 0) {
-                        onDataReceive(received, size);
-                    }
-                } else {
-                    SystemClock.sleep(1);
+                size = mInputStream.read(mReadBuffer);
+                Log.d("ttymxc0  Size:-", "" + size+" Thread State "+currentThread().getState());
+                if (size > 0) {
+                    byte[] readBytes = new byte[size];
+                    System.arraycopy(mReadBuffer, 0, readBytes, 0, size);
+                    onDataReceive(readBytes,size);
                 }
-            } catch (IOException e) {
-                LogPlus.e("读取数据失败", e);
-            }
-            //Thread.yield();
-        }
 
-        LogPlus.e("结束读进程");
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            } finally {
+
+                // semaphore.release();
+            }
+
+        }
     }
 
     /**
@@ -72,27 +69,29 @@ public class SerialReadThread extends Thread {
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void onDataReceive(byte[] received, int size) {
         // TODO: 2018/3/22 解决粘包、分包等
-        String hexStr = ByteUtil.bytes2HexStr(received, 0, size);
+   //     String hexStr = ByteUtil.bytes2HexStr(received, 0, size);
 
+/*
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             ToastUtil.recordLog1("================================*********Size("+size+")***********======================","l1_ComPort_hex_data");
             ToastUtil.recordLog1(hexStr,"l1_ComPort_hex_data");
         }
+*/
 
 
-        String hexStr2 = new String(received, StandardCharsets.UTF_8);
+        String hexStr2 = new String(received, StandardCharsets.ISO_8859_1);
 
 
-        Log.d("OnNmea:-","Size:-"+size);
-        Log.d("OnNmea:-","Message:-"+hexStr2);
+        //Log.d("OnNmea:-","Size:-"+size);
+            Log.d("OnNmea:-","Message:-"+hexStr2);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+       /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
             ToastUtil.recordLog2("================================*********Size("+size+")***********======================","l1_ComPort_string_data");
 
             ToastUtil.recordLog2(hexStr2,"l1_ComPort_string_data");
-        }
+        }*/
 
         LogManager.instance().post(new RecvMessage(hexStr2,size));
 
@@ -110,7 +109,7 @@ public class SerialReadThread extends Thread {
         try {
             mInputStream.close();
         } catch (IOException e) {
-            LogPlus.e("异常", e);
+            LogPlus.e("异常", e.getMessage());
         } finally {
             super.interrupt();
         }

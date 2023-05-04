@@ -2,8 +2,8 @@
     <string name="app_name">Serialport</string>
     <string name="select_serial_port">selectSeriaport:</string>
     <string name="select_baud_rate">BaudRate</string>
-    <string name="open_serial_port">OpenSerialPort</string>
-    <string name="close_serial_port">CloseSerialPort</string>
+    <string name="open_serial_port">Open</string>
+    <string name="close_serial_port">Close</string>
     <string name="no_serial_device">No serialports</string>
     <string name="send_data">sendData</string>
     <string name="input_data">Input data</string>

@@ -2,6 +2,8 @@ package com.licheedev.serialtool.comn;
 
 import android.os.HandlerThread;
 import android.serialport.SerialPort;
+import android.util.Log;
+
 import com.licheedev.hwutils.ByteUtil;
 import com.licheedev.myutils.LogPlus;
 import com.licheedev.serialtool.comn.message.LogManager;
@@ -13,6 +15,8 @@ import io.reactivex.Observer;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -138,7 +142,7 @@ public class SerialPortManager {
                     emitter.onNext(new Object());
                 } catch (Exception e) {
 
-                    LogPlus.e("发送：" + ByteUtil.bytes2HexStr(datas) + " 失败", e);
+                    LogPlus.e("Exception" + ByteUtil.bytes2HexStr(datas) + " Exception", e.getMessage());
 
                     if (!emitter.isDisposed()) {
                         emitter.onError(e);
@@ -150,15 +154,31 @@ public class SerialPortManager {
         });
     }
 
+
+    public static byte[] toBytes(char[] chars) {
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+        for (char c : chars) {
+            byteBuffer.write(c);
+        }
+        return byteBuffer.toByteArray();
+    }
     /**
      * 发送命令包
      */
     public void sendCommand(final String command) {
 
         // TODO: 2018/3/22  
-        LogPlus.i("发送命令：" + command);
+       // LogPlus.i("发送命令：" + command);
+
+         char[] l1_115200_baudrate = {0xb5, 0x62, 0x06, 0x00, 0x14, 0x00, 0x01, 0x00, 0x00, 0x00, 0xd0, 0x08, 0x00, 0x00, 0x00, 0x96, 0x00, 0x00, 0x07, 0x00, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x97, 0xA8};
+
+         char[] l1_115200_write_to_flash = {0xB5, 0x62,0x06,0x09,0x0D,0x00,0x00,0x00,0x00,0x00,0xFF,0xFF,0x00,0x00,0x00,0x00,0x00,0x00,0x17,0x31,0xBF};
+
 
         byte[] bytes = ByteUtil.hexStr2bytes(command);
+      //  byte[] bytes =toBytes(l1_115200_baudrate);
+
+        Log.d("Command:-",""+bytes.toString());
         rxSendData(bytes).subscribeOn(mSendScheduler).subscribe(new Observer<Object>() {
             @Override
             public void onSubscribe(Disposable d) {
@@ -172,7 +192,7 @@ public class SerialPortManager {
 
             @Override
             public void onError(Throwable e) {
-                LogPlus.e("发送失败", e);
+                LogPlus.e("Failed to send", e);
             }
 
             @Override

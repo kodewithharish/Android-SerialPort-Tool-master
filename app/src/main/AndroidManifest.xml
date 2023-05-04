@@ -28,7 +28,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.LoadCmdListActivity" />
+        <activity android:name=".activity.LoadCmdListActivity"
+            android:screenOrientation="landscape"
+
+            >
+        </activity>
 
     </application>
 

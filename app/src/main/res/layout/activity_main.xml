@@ -100,6 +100,13 @@
                 style="@style/ButtonStyle"
                 android:text="@string/load_cmd_list" />
 
+            <ListView
+                android:id="@+id/list_view_"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:fastScrollEnabled="true" />
+
         </LinearLayout>
 
         <include

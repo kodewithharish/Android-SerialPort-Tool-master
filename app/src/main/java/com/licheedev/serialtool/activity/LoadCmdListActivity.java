@@ -20,6 +20,8 @@ import com.licheedev.serialtool.util.ListViewHolder;
 import com.licheedev.serialtool.util.ToastUtil;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.List;
 import ru.bartwell.exfilepicker.ExFilePicker;
@@ -45,11 +47,9 @@ public class LoadCmdListActivity extends BaseActivity implements AdapterView.OnI
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setActionBar(true, "加载命令列表");
+        setActionBar(true, "Load command list");
         initFilePickers();
-
         mParser = new CommandParser();
-
         mListView.setOnItemClickListener(this);
         mAdapter = new InnerAdapter();
         mListView.setAdapter(mAdapter);
@@ -77,7 +77,7 @@ public class LoadCmdListActivity extends BaseActivity implements AdapterView.OnI
 
                     @Override
                     public void onError(Throwable e) {
-                        LogPlus.e("解析失败", e);
+                        LogPlus.e("parsing failed", e);
                     }
 
                     @Override
@@ -86,7 +86,7 @@ public class LoadCmdListActivity extends BaseActivity implements AdapterView.OnI
                     }
                 });
             } else {
-                ToastUtil.showOne(this, "未选择文件");
+                ToastUtil.showOne(this, "no file selected");
             }
         }
     }
@@ -119,6 +119,8 @@ public class LoadCmdListActivity extends BaseActivity implements AdapterView.OnI
         Command item = mAdapter.getItem(position);
         SerialPortManager.instance().sendCommand(item.getCommand());
     }
+
+
 
     private static class InnerAdapter extends BaseListAdapter<Command> {
         @Override
